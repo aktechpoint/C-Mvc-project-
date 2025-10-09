@@ -81,4 +81,6 @@ node_modules/
 # JetBrains Rider
 .idea/
 *.sln.iml
+# Secrets file
+appsettings.Secrets.json
 

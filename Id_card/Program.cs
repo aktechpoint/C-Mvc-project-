@@ -13,6 +13,7 @@ builder.Services.AddDbContext<ICardDbContext>(options =>
 
 // Register EmailService
 builder.Services.AddScoped<EmailService>();
+builder.Configuration.AddJsonFile("appsettings.Secrets.json", optional: true, reloadOnChange: true);
 
 // Add session
 builder.Services.AddDistributedMemoryCache();
