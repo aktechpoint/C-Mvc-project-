@@ -1,0 +1,61 @@
+CREATE TABLE Address (
+    AddressId INT IDENTITY(1,1) PRIMARY KEY,
+    HouseNo NVARCHAR(50),
+    Street NVARCHAR(100),
+    City NVARCHAR(100),
+    State NVARCHAR(100),
+    Country NVARCHAR(100),
+    Pincode NVARCHAR(10),
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    UpdatedAt DATETIME NULL
+);
+GO
+
+CREATE TABLE Users (
+    UserId INT IDENTITY(1,1) PRIMARY KEY,
+    FullName NVARCHAR(100) NOT NULL,
+    Email NVARCHAR(150) NOT NULL UNIQUE,
+    Username AS Email PERSISTED,  -- auto-generated username same as email
+    MobileNo NVARCHAR(15),
+    Image NVARCHAR(255),  -- image file path or URL
+    PasswordHash NVARCHAR(255) NOT NULL,
+    IPAddress NVARCHAR(45),
+    IsActive BIT DEFAULT 1,
+    Role NVARCHAR(50) DEFAULT 'User',  -- e.g., Admin, HR, Employee
+    AddressId INT NULL,
+    LastLogin DATETIME NULL,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    UpdatedAt DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (AddressId) REFERENCES Address(AddressId)
+);
+GO
+
+
+CREATE TABLE Employees (
+    EmployeeId INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(100) NOT NULL,
+    FatherName NVARCHAR(100),
+    MotherName NVARCHAR(100),
+    DOB DATE,
+    Department NVARCHAR(100),
+    Designation NVARCHAR(100),
+    DateOfJoining DATE,
+    IDCardIssueDate DATE,
+    ValidTill DATE,
+    BloodGroup NVARCHAR(10),
+    Image NVARCHAR(255),
+    MobileNo NVARCHAR(15),
+    Email NVARCHAR(150),
+    AddressId INT NULL,
+    EmergencyContactName NVARCHAR(100),
+    EmergencyContactNo NVARCHAR(15),
+    CardCreateDate DATETIME DEFAULT GETDATE(),
+    PrintedStatus BIT DEFAULT 0,          -- 0 = Not printed, 1 = Printed
+    SentOnMailStatus BIT DEFAULT 0,       -- 0 = Not sent, 1 = Sent
+    UpdatedAt DATETIME DEFAULT GETDATE(),
+    CreatedBy INT NULL,                   -- links to Users table
+    FOREIGN KEY (AddressId) REFERENCES Address(AddressId),
+    FOREIGN KEY (CreatedBy) REFERENCES Users(UserId)
+);
+GO
+
