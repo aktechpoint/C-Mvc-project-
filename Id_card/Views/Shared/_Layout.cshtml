@@ -1,0 +1,200 @@
+﻿@* <!DOCTYPE html> *@
+@* <html lang="en"> *@
+@* <head> *@
+@*     <meta charset="utf-8" /> *@
+@*     <meta name="viewport" content="width=device-width, initial-scale=1.0" /> *@
+@*     <title>@ViewData["Title"] - Id_card</title> *@
+@*     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" /> *@
+@*     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" /> *@
+@*     <link rel="stylesheet" href="~/Id_card.styles.css" asp-append-version="true" /> *@
+@* </head> *@
+@* <body> *@
+@*     <header> *@
+@*         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3"> *@
+@*             <div class="container-fluid"> *@
+@*                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Id_card</a> *@
+@*                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent" *@
+@*                         aria-expanded="false" aria-label="Toggle navigation"> *@
+@*                     <span class="navbar-toggler-icon"></span> *@
+@*                 </button> *@
+@*                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between"> *@
+@*                     <ul class="navbar-nav flex-grow-1"> *@
+@*                         <li class="nav-item"> *@
+@*                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a> *@
+@*                         </li> *@
+@*                         <li class="nav-item"> *@
+@*                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a> *@
+@*                         </li> *@
+@*                     </ul> *@
+@*                 </div> *@
+@*             </div> *@
+@*         </nav> *@
+@*     </header> *@
+@*     <div class="container"> *@
+@*         <main role="main" class="pb-3"> *@
+@*             @RenderBody() *@
+@*         </main> *@
+@*     </div> *@
+
+@*     <footer class="border-top footer text-muted"> *@
+@*         <div class="container"> *@
+@*             &copy; 2025 - Id_card - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a> *@
+@*         </div> *@
+@*     </footer> *@
+@*     <script src="~/lib/jquery/dist/jquery.min.js"></script> *@
+@*     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script> *@
+@*     <script src="~/js/site.js" asp-append-version="true"></script> *@
+@*     @await RenderSectionAsync("Scripts", required: false) *@
+@* </body> *@
+@* </html> *@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - iCard App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" asp-controller="Dashboard" asp-action="Index">iCard App</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index"><i class="fas fa-home"></i> Home</a></li>
+                    @if (Context.Session.GetInt32("UserId") != null)
+                    {
+                        <!-- Dashboard Menu -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="dashboardDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="dashboardDropdown">
+                                <li><a class="dropdown-item" asp-controller="Dashboard" asp-action="Index"><i class="fas fa-chart-pie"></i> System Overview</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" asp-controller="Dashboard" asp-action="EmployeeList" asp-route-type="total"><i class="fas fa-users"></i> All Employees</a></li>
+                                <li><a class="dropdown-item" asp-controller="Dashboard" asp-action="EmployeeList" asp-route-type="generated"><i class="fas fa-id-card"></i> Generated Cards</a></li>
+                                <li><a class="dropdown-item" asp-controller="Dashboard" asp-action="EmployeeList" asp-route-type="active"><i class="fas fa-user-check"></i> Active Employees</a></li>
+                                <li><a class="dropdown-item" asp-controller="Dashboard" asp-action="EmployeeList" asp-route-type="inactive"><i class="fas fa-user-times"></i> Inactive Employees</a></li>
+                                <li><a class="dropdown-item" asp-controller="Dashboard" asp-action="EmployeeList" asp-route-type="emailsent"><i class="fas fa-envelope"></i> Emails Sent</a></li>
+                            </ul>
+                        </li>
+
+                        <!-- Employee Management Menu -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="employeesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-users"></i> Employees
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="employeesDropdown">
+                                <li><a class="dropdown-item" asp-controller="Employees" asp-action="Index"><i class="fas fa-list"></i> View All Employees</a></li>
+                                <li><a class="dropdown-item" asp-controller="Employees" asp-action="Create"><i class="fas fa-plus"></i> Add New Employee</a></li>
+                                <li><a class="dropdown-item" asp-controller="Employees" asp-action="BulkUpload"><i class="fas fa-upload"></i> Bulk Upload (Excel)</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" asp-controller="Employees" asp-action="Index"><i class="fas fa-search"></i> Search & Filter</a></li>
+                                <li><a class="dropdown-item" asp-controller="Employees" asp-action="Index"><i class="fas fa-edit"></i> Edit Employee</a></li>
+                            </ul>
+                        </li>
+
+                        <!-- ID Card Operations Menu -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="idcardsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-id-card"></i> ID Cards
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="idcardsDropdown">
+                                <li><a class="dropdown-item" asp-controller="Employees" asp-action="Index"><i class="fas fa-file-pdf"></i> Generate PDF Cards</a></li>
+                                <li><a class="dropdown-item" asp-controller="Employees" asp-action="Index"><i class="fas fa-qrcode"></i> Generate QR Codes</a></li>
+                                <li><a class="dropdown-item" asp-controller="Employees" asp-action="Index"><i class="fas fa-download"></i> Bulk Download</a></li>
+                                <li><a class="dropdown-item" asp-controller="Employees" asp-action="Index"><i class="fas fa-print"></i> Print Cards</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" asp-controller="Employees" asp-action="Index"><i class="fas fa-eye"></i> Preview Cards</a></li>
+                                <li><a class="dropdown-item" asp-controller="Employees" asp-action="Index"><i class="fas fa-cog"></i> Card Templates</a></li>
+                            </ul>
+                        </li>
+
+                        <!-- Communication Menu -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="communicationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-envelope"></i> Communication
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="communicationDropdown">
+                                <li><a class="dropdown-item" asp-controller="Employees" asp-action="Index"><i class="fas fa-envelope"></i> Send Email Cards</a></li>
+                                <li><a class="dropdown-item" asp-controller="Employees" asp-action="Index"><i class="fab fa-whatsapp"></i> Share WhatsApp</a></li>
+                                <li><a class="dropdown-item" asp-controller="Employees" asp-action="Index"><i class="fas fa-paper-plane"></i> Bulk Email Send</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" asp-controller="Employees" asp-action="Index"><i class="fas fa-bell"></i> Email Notifications</a></li>
+                                <li><a class="dropdown-item" asp-controller="Employees" asp-action="Index"><i class="fas fa-history"></i> Email History</a></li>
+                                <li><a class="dropdown-item" asp-controller="Employees" asp-action="Index"><i class="fas fa-chart-line"></i> Email Reports</a></li>
+                            </ul>
+                        </li>
+
+                        <!-- Analytics Menu -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="analyticsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-chart-line"></i> Analytics
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="analyticsDropdown">
+                                <li><a class="dropdown-item" asp-controller="Dashboard" asp-action="Index"><i class="fas fa-chart-bar"></i> System Statistics</a></li>
+                                <li><a class="dropdown-item" asp-controller="Dashboard" asp-action="Index"><i class="fas fa-database"></i> Database Status</a></li>
+                                <li><a class="dropdown-item" asp-controller="Dashboard" asp-action="Index"><i class="fas fa-server"></i> Server Status</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" asp-controller="Dashboard" asp-action="Index"><i class="fas fa-file-export"></i> Export Data</a></li>
+                                <li><a class="dropdown-item" asp-controller="Dashboard" asp-action="Index"><i class="fas fa-file-import"></i> Import Data</a></li>
+                                <li><a class="dropdown-item" asp-controller="Dashboard" asp-action="Index"><i class="fas fa-download"></i> Backup System</a></li>
+                            </ul>
+                        </li>
+                    }
+                </ul>
+                <ul class="navbar-nav">
+                    @if (Context.Session.GetInt32("UserId") != null)
+                    {
+                        var role = Context.Session.GetString("UserRole") ?? "User";
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user"></i> @(Context.Session.GetString("UserRole") ?? "User")
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" asp-controller="Users" asp-action="Profile"><i class="fas fa-user-edit"></i> My Profile</a></li>
+                                <li><a class="dropdown-item" asp-controller="Users" asp-action="ChangePassword"><i class="fas fa-key"></i> Change Password</a></li>
+                                @if (string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" asp-controller="Users" asp-action="Register"><i class="fas fa-user-plus"></i> Register User</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Users" asp-action="Index"><i class="fas fa-users-cog"></i> Manage Users</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Users" asp-action="Index"><i class="fas fa-shield-alt"></i> User Permissions</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Users" asp-action="Index"><i class="fas fa-user-lock"></i> User Roles</a></li>
+                                }
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" asp-controller="Dashboard" asp-action="Logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                            </ul>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item"><a class="nav-link" asp-controller="Users" asp-action="Login"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+                    }
+            </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        @RenderBody()
+    </div>
+
+    <!-- Bootstrap JS for dropdowns -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <footer>
+        <p>&copy; 2025 - Morning class 7 AM C# prject </p>
+    </footer>
+    @RenderSection("Scripts", required: false)
+
+</body>
+</html>
+

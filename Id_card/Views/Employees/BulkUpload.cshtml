@@ -1,0 +1,63 @@
+@{
+    ViewData["Title"] = "Bulk Upload Employees";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Bulk Upload Employees</h2>
+        <div>
+            <a asp-action="Index" class="btn btn-secondary btn-sm">Back to List</a>
+        </div>
+    </div>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger">@ViewBag.Error</div>
+    }
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Upload Excel File</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="BulkUpload" method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label class="form-label">Select Excel File</label>
+                            <input type="file" name="excelFile" class="form-control" accept=".xlsx,.xls" required />
+                            <div class="form-text">Only Excel files (.xlsx, .xls) are supported.</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Upload</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Excel Format</h5>
+                </div>
+                <div class="card-body">
+                    <p>Your Excel file should have the following columns in order:</p>
+                    <ol class="small">
+                        <li>Name (Required)</li>
+                        <li>Father Name</li>
+                        <li>Mother Name</li>
+                        <li>Date of Birth (YYYY-MM-DD)</li>
+                        <li>Department</li>
+                        <li>Designation</li>
+                        <li>Date of Joining (YYYY-MM-DD)</li>
+                        <li>Blood Group</li>
+                        <li>Mobile No</li>
+                        <li>Email</li>
+                        <li>Emergency Contact Name</li>
+                        <li>Emergency Contact No</li>
+                    </ol>
+                    <hr />
+                    <a href="/sample-employees.xlsx" class="btn btn-outline-primary btn-sm">Download Sample File</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

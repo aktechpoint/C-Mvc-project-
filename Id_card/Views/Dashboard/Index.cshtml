@@ -1,0 +1,270 @@
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Dashboard</h2>
+        <div class="d-flex align-items-center gap-2">
+            <span class="me-2">Role: @ViewBag.UserRole</span>
+            @if ((string)(ViewBag.UserRole ?? "User") == "Admin")
+            {
+                <a asp-controller="Users" asp-action="Register" class="btn btn-primary btn-sm">Register User</a>
+            }
+            <a asp-controller="Dashboard" asp-action="Logout" class="btn btn-outline-danger btn-sm">Logout</a>
+        </div>
+    </div>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success">@TempData["Message"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <!-- Dashboard Indicators -->
+    <div class="row mb-4">
+        <div class="col-md-2 col-sm-6 mb-3">
+            <div class="card bg-primary text-white h-100" style="cursor: pointer;" onclick="window.location.href='@Url.Action("EmployeeList", "Dashboard", new { type = "total" })'">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-2x mb-2"></i>
+                    <h4>@ViewBag.TotalEmployees</h4>
+                    <p class="mb-0">Total Employees</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-sm-6 mb-3">
+            <div class="card bg-success text-white h-100" style="cursor: pointer;" onclick="window.location.href='@Url.Action("EmployeeList", "Dashboard", new { type = "generated" })'">
+                <div class="card-body text-center">
+                    <i class="fas fa-id-card fa-2x mb-2"></i>
+                    <h4>@ViewBag.IdCardsGenerated</h4>
+                    <p class="mb-0">ID Cards Generated</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-sm-6 mb-3">
+            <div class="card bg-info text-white h-100" style="cursor: pointer;" onclick="window.location.href='@Url.Action("EmployeeList", "Dashboard", new { type = "active" })'">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-check fa-2x mb-2"></i>
+                    <h4>@ViewBag.ActiveEmployees</h4>
+                    <p class="mb-0">Active Employees</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-sm-6 mb-3">
+            <div class="card bg-warning text-white h-100" style="cursor: pointer;" onclick="window.location.href='@Url.Action("EmployeeList", "Dashboard", new { type = "inactive" })'">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-times fa-2x mb-2"></i>
+                    <h4>@ViewBag.InactiveEmployees</h4>
+                    <p class="mb-0">Inactive Employees</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-sm-6 mb-3">
+            <div class="card bg-secondary text-white h-100" style="cursor: pointer;" onclick="window.location.href='@Url.Action("EmployeeList", "Dashboard", new { type = "emailsent" })'">
+                <div class="card-body text-center">
+                    <i class="fas fa-envelope fa-2x mb-2"></i>
+                    <h4>@ViewBag.EmailsSent</h4>
+                    <p class="mb-0">Emails Sent</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- All Operations Dashboard -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-tasks"></i> All Available Operations</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Employee Operations -->
+                            <div class="col-md-4 mb-3">
+                                <h6 class="text-primary"><i class="fas fa-users"></i> Employee Operations</h6>
+                                <div class="d-grid gap-2">
+                                    <a asp-controller="Employees" asp-action="Create" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-plus"></i> Add Employee
+                                    </a>
+                                    <a asp-controller="Employees" asp-action="BulkUpload" class="btn btn-outline-info btn-sm">
+                                        <i class="fas fa-upload"></i> Bulk Upload Excel
+                                    </a>
+                                    <a asp-controller="Employees" asp-action="Index" class="btn btn-outline-success btn-sm">
+                                        <i class="fas fa-list"></i> View All Employees
+                                    </a>
+                                    <a asp-controller="Employees" asp-action="Index" class="btn btn-outline-warning btn-sm">
+                                        <i class="fas fa-search"></i> Search & Filter
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- ID Card Operations -->
+                            <div class="col-md-4 mb-3">
+                                <h6 class="text-success"><i class="fas fa-id-card"></i> ID Card Operations</h6>
+                                <div class="d-grid gap-2">
+                                    <a asp-controller="Employees" asp-action="Index" class="btn btn-outline-success btn-sm">
+                                        <i class="fas fa-file-pdf"></i> Generate PDF Cards
+                                    </a>
+                                    <a asp-controller="Employees" asp-action="Index" class="btn btn-outline-info btn-sm">
+                                        <i class="fas fa-qrcode"></i> Generate QR Codes
+                                    </a>
+                                    <a asp-controller="Employees" asp-action="Index" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-download"></i> Bulk Download
+                                    </a>
+                                    <a asp-controller="Employees" asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                                        <i class="fas fa-print"></i> Print Cards
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Communication Operations -->
+                            <div class="col-md-4 mb-3">
+                                <h6 class="text-warning"><i class="fas fa-envelope"></i> Communication Operations</h6>
+                                <div class="d-grid gap-2">
+                                    <a asp-controller="Employees" asp-action="Index" class="btn btn-outline-warning btn-sm">
+                                        <i class="fas fa-envelope"></i> Send Email Cards
+                                    </a>
+                                    <a asp-controller="Employees" asp-action="Index" class="btn btn-outline-success btn-sm">
+                                        <i class="fab fa-whatsapp"></i> Share WhatsApp
+                                    </a>
+                                    <a asp-controller="Employees" asp-action="Index" class="btn btn-outline-info btn-sm">
+                                        <i class="fas fa-paper-plane"></i> Bulk Email Send
+                                    </a>
+                                    <a asp-controller="Employees" asp-action="Index" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-bell"></i> Email Notifications
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Management Operations -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-user-cog"></i> User Management Operations</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 mb-2">
+                                <a asp-controller="Users" asp-action="Profile" class="btn btn-primary w-100">
+                                    <i class="fas fa-user-edit"></i> My Profile
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <a asp-controller="Users" asp-action="ChangePassword" class="btn btn-warning w-100">
+                                    <i class="fas fa-key"></i> Change Password
+                                </a>
+                            </div>
+                            @if (string.Equals(ViewBag.UserRole, "Admin", StringComparison.OrdinalIgnoreCase))
+                            {
+                                <div class="col-md-3 mb-2">
+                                    <a asp-controller="Users" asp-action="Register" class="btn btn-success w-100">
+                                        <i class="fas fa-user-plus"></i> Register User
+                                    </a>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <a asp-controller="Users" asp-action="Index" class="btn btn-info w-100">
+                                        <i class="fas fa-users-cog"></i> Manage Users
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Analytics Operations -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-chart-line"></i> Analytics & Reports</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-2 mb-2">
+                                <a asp-controller="Dashboard" asp-action="EmployeeList" asp-route-type="total" class="btn btn-outline-primary w-100">
+                                    <i class="fas fa-users"></i> All Employees
+                                </a>
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <a asp-controller="Dashboard" asp-action="EmployeeList" asp-route-type="generated" class="btn btn-outline-success w-100">
+                                    <i class="fas fa-id-card"></i> Generated Cards
+                                </a>
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <a asp-controller="Dashboard" asp-action="EmployeeList" asp-route-type="active" class="btn btn-outline-info w-100">
+                                    <i class="fas fa-user-check"></i> Active Employees
+                                </a>
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <a asp-controller="Dashboard" asp-action="EmployeeList" asp-route-type="inactive" class="btn btn-outline-warning w-100">
+                                    <i class="fas fa-user-times"></i> Inactive Employees
+                                </a>
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <a asp-controller="Dashboard" asp-action="EmployeeList" asp-route-type="emailsent" class="btn btn-outline-secondary w-100">
+                                    <i class="fas fa-envelope"></i> Emails Sent
+                                </a>
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-dark w-100">
+                                    <i class="fas fa-chart-pie"></i> System Stats
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <!-- Recent Activity -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Employees</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">View recently added employees and their status.</p>
+                    <a asp-controller="Employees" asp-action="Index" class="btn btn-outline-primary">View All</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">System Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <span>Database:</span>
+                        <span class="badge bg-success">Connected</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Email Service:</span>
+                        <span class="badge bg-success">Active</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>ID Card Generation:</span>
+                        <span class="badge bg-success">Ready</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+

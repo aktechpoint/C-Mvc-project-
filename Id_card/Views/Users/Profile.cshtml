@@ -1,0 +1,58 @@
+@model Id_card.Models.Users
+@{
+    ViewData["Title"] = "Profile";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>My Profile</h2>
+        <div>
+            <a asp-controller="Dashboard" asp-action="Index" class="btn btn-secondary btn-sm">Back to Dashboard</a>
+            <a asp-controller="Users" asp-action="EditProfile" class="btn btn-primary btn-sm">Edit</a>
+        </div>
+    </div>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success">@TempData["Message"]</div>
+    }
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger">@ViewBag.Error</div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex align-items-center">
+                <div class="me-3">
+                    <img src="@(!string.IsNullOrEmpty(Model.Image) ? Model.Image : "/favicon.ico")" alt="Profile Image" style="height:90px;width:90px;object-fit:cover;border-radius:6px;" />
+                </div>
+                <div>
+                    <h5 class="card-title mb-1">@Model.FullName</h5>
+                    <div class="text-muted">@Model.Email</div>
+                    <div class="text-muted">@Model.MobileNo</div>
+                </div>
+            </div>
+
+            <hr />
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Address</h6>
+                    <div>@Model.Address?.HouseNo</div>
+                    <div>@Model.Address?.Street</div>
+                    <div>@Model.Address?.City, @Model.Address?.State</div>
+                    <div>@Model.Address?.Country - @Model.Address?.Pincode</div>
+                </div>
+                <div class="col-md-6">
+                    <h6>Details</h6>
+                    <div>Role: @Model.Role</div>
+                    <div>Active: @(Model.IsActive ? "Yes" : "No")</div>
+                    <div>Last Login: @(Model.LastLogin?.ToString("g") ?? "-")</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

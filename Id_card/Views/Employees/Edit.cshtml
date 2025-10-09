@@ -1,0 +1,137 @@
+@model Id_card.Models.Employees
+@{
+    ViewData["Title"] = "Edit Employee";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Edit Employee</h2>
+        <div>
+            <a asp-action="Index" class="btn btn-secondary btn-sm">Back to List</a>
+        </div>
+    </div>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success">@TempData["Message"]</div>
+    }
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger">@ViewBag.Error</div>
+    }
+
+    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="EmployeeId" />
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Name *</label>
+                <input asp-for="Name" class="form-control" required />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Father Name</label>
+                <input asp-for="FatherName" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Mother Name</label>
+                <input asp-for="MotherName" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Date of Birth</label>
+                <input asp-for="DOB" type="date" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Department</label>
+                <input asp-for="Department" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Designation</label>
+                <input asp-for="Designation" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Date of Joining</label>
+                <input asp-for="DateOfJoining" type="date" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Blood Group</label>
+                <select asp-for="BloodGroup" class="form-control">
+                    <option value="">Select Blood Group</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Mobile No</label>
+                <input asp-for="MobileNo" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Email</label>
+                <input asp-for="Email" type="email" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Emergency Contact Name</label>
+                <input asp-for="EmergencyContactName" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Emergency Contact No</label>
+                <input asp-for="EmergencyContactNo" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">ID Card Issue Date</label>
+                <input asp-for="IDCardIssueDate" type="date" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Valid Till</label>
+                <input asp-for="ValidTill" type="date" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Profile Image</label>
+                <input type="file" name="imageFile" class="form-control" accept="image/*" />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Active</label>
+                <input asp-for="IsActive" type="checkbox" class="form-check-input" />
+            </div>
+
+            <div class="col-12"><hr /></div>
+            <h5>Address Details</h5>
+
+            <div class="col-md-3">
+                <label class="form-label">House No</label>
+                <input asp-for="Address.HouseNo" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Street</label>
+                <input asp-for="Address.Street" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">City</label>
+                <input asp-for="Address.City" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">State</label>
+                <input asp-for="Address.State" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Country</label>
+                <input asp-for="Address.Country" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Pincode</label>
+                <input asp-for="Address.Pincode" class="form-control" />
+            </div>
+
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+

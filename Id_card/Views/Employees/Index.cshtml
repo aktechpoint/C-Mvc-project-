@@ -1,0 +1,206 @@
+@model IEnumerable<Id_card.Models.Employees>
+@{
+    ViewData["Title"] = "Employees";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Employees</h2>
+        <div>
+            <a asp-action="BulkUpload" class="btn btn-info btn-sm">Bulk Upload</a>
+            <a asp-action="Create" class="btn btn-primary btn-sm">Add Employee</a>
+        </div>
+    </div>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success">@TempData["Message"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <!-- Filters -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Search</label>
+                    <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="Name, Mobile, ID" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Department</label>
+                    <select name="department" class="form-control">
+                        <option value="">All Departments</option>
+                        @foreach (var dept in ViewBag.Departments)
+                        {
+                            <option value="@dept" selected="@(ViewBag.Department == dept)">@dept</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Designation</label>
+                    <select name="designation" class="form-control">
+                        <option value="">All Designations</option>
+                        @foreach (var desg in ViewBag.Designations)
+                        {
+                            <option value="@desg" selected="@(ViewBag.Designation == desg)">@desg</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Date From</label>
+                    <input type="date" name="dateFrom" value="@ViewBag.DateFrom" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Date To</label>
+                    <input type="date" name="dateTo" value="@ViewBag.DateTo" class="form-control" />
+                </div>
+                <div class="col-md-1">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="submit" class="btn btn-primary d-block">Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bulk Actions -->
+    <div class="mb-3">
+        <form id="bulkForm" method="post" asp-action="BulkGenerateIdCards">
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-success btn-sm" onclick="selectAll()">Select All</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="deselectAll()">Deselect All</button>
+                <button type="submit" class="btn btn-warning btn-sm" onclick="return confirmBulkGenerate(false)">Generate ID Cards</button>
+                <button type="submit" class="btn btn-info btn-sm" onclick="return confirmBulkGenerate(true)">Generate & Send Emails</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Employee List -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="selectAllCheckbox" onchange="toggleAll()" /></th>
+                            <th>ID</th>
+                            <th>Photo</th>
+                            <th>Name</th>
+                            <th>Department</th>
+                            <th>Designation</th>
+                            <th>Mobile</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var employee in Model)
+                        {
+                            <tr>
+                                <td><input type="checkbox" name="employeeIds" value="@employee.EmployeeId" class="employee-checkbox" /></td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@employee.EmployeeId">@employee.EmployeeId</a>
+                                </td>
+                                <td>
+                                    <img src="@(!string.IsNullOrEmpty(employee.Image) ? employee.Image : "/favicon.ico")" 
+                                         alt="Photo" style="height:40px;width:40px;object-fit:cover;border-radius:50%;" />
+                                </td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@employee.EmployeeId">@employee.Name</a>
+                                </td>
+                                <td>@employee.Department</td>
+                                <td>@employee.Designation</td>
+                                <td>@employee.MobileNo</td>
+                                <td>@employee.Email</td>
+                                <td>
+                                    <span class="badge @(employee.PrintedStatus ? "bg-success" : "bg-warning")">
+                                        @(employee.PrintedStatus ? "Printed" : "Not Printed")
+                                    </span>
+                                    @if (employee.SentOnMailStatus)
+                                    {
+                                        <span class="badge bg-info">Email Sent</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a asp-action="GenerateIdCard" asp-route-id="@employee.EmployeeId" 
+                                       class="btn btn-primary btn-sm" target="_blank">Generate ID Card</a>
+                                    <a asp-action="GenerateIdCard" asp-route-id="@employee.EmployeeId" asp-route-sendEmail="true"
+                                       class="btn btn-info btn-sm">Generate & Email</a>
+                                    <a asp-action="Edit" asp-route-id="@employee.EmployeeId" class="btn btn-secondary btn-sm">Edit</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            @if (ViewBag.TotalPages > 1)
+            {
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                <a class="page-link" href="?page=@i&pageSize=@ViewBag.PageSize&search=@ViewBag.Search&department=@ViewBag.Department&designation=@ViewBag.Designation&dateFrom=@ViewBag.DateFrom&dateTo=@ViewBag.DateTo">@i</a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            }
+
+            <!-- Page Size Selector -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div>
+                    <span>Page Size: </span>
+                    <select onchange="changePageSize(this.value)" class="form-select d-inline-block w-auto">
+                        <option value="20" selected="@(ViewBag.PageSize == 20)">20</option>
+                        <option value="50" selected="@(ViewBag.PageSize == 50)">50</option>
+                        <option value="100" selected="@(ViewBag.PageSize == 100)">100</option>
+                    </select>
+                </div>
+                <div>
+                    Showing @((ViewBag.CurrentPage - 1) * ViewBag.PageSize + 1) to @Math.Min(ViewBag.CurrentPage * ViewBag.PageSize, ViewBag.TotalCount) of @ViewBag.TotalCount entries
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function selectAll() {
+        document.querySelectorAll('.employee-checkbox').forEach(cb => cb.checked = true);
+        document.getElementById('selectAllCheckbox').checked = true;
+    }
+
+    function deselectAll() {
+        document.querySelectorAll('.employee-checkbox').forEach(cb => cb.checked = false);
+        document.getElementById('selectAllCheckbox').checked = false;
+    }
+
+    function toggleAll() {
+        const selectAll = document.getElementById('selectAllCheckbox').checked;
+        document.querySelectorAll('.employee-checkbox').forEach(cb => cb.checked = selectAll);
+    }
+
+    function confirmBulkGenerate(sendEmail) {
+        const checked = document.querySelectorAll('.employee-checkbox:checked');
+        if (checked.length === 0) {
+            alert('Please select at least one employee.');
+            return false;
+        }
+        
+        const action = sendEmail ? 'generate ID cards and send emails' : 'generate ID cards';
+        return confirm(`Are you sure you want to ${action} for ${checked.length} selected employees?`);
+    }
+
+    function changePageSize(size) {
+        const url = new URL(window.location);
+        url.searchParams.set('pageSize', size);
+        url.searchParams.set('page', '1');
+        window.location.href = url.toString();
+    }
+</script>
