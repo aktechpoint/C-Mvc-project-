@@ -13,6 +13,8 @@ builder.Services.AddDbContext<ICardDbContext>(options =>
 
 // Register EmailService
 builder.Services.AddScoped<EmailService>();
+builder.Services.AddScoped<IdCardService>();
+builder.Services.AddScoped<RazorViewToStringRenderer>();
 builder.Configuration.AddJsonFile("appsettings.Secrets.json", optional: true, reloadOnChange: true);
 
 // Add session
@@ -35,6 +37,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
 
 app.UseRouting();
 app.UseSession();

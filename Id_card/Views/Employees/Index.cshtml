@@ -125,10 +125,13 @@
                                     }
                                 </td>
                                 <td>
-                                    <a asp-action="GenerateIdCard" asp-route-id="@employee.EmployeeId" 
-                                       class="btn btn-primary btn-sm" target="_blank">Generate ID Card</a>
-                                    <a asp-action="GenerateIdCard" asp-route-id="@employee.EmployeeId" asp-route-sendEmail="true"
-                                       class="btn btn-info btn-sm">Generate & Email</a>
+                                    <a asp-controller="IdCard" asp-action="Preview" asp-route-id="@employee.EmployeeId" 
+                                       class="btn btn-primary btn-sm" target="_blank">Preview</a>
+                                    <a asp-controller="IdCard" asp-action="Pdf" asp-route-id="@employee.EmployeeId" 
+                                       class="btn btn-info btn-sm">Download PDF</a>
+                                    <form asp-controller="IdCard" asp-action="Email" asp-route-id="@employee.EmployeeId" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-success btn-sm">Send Email</button>
+                                    </form>
                                     <a asp-action="Edit" asp-route-id="@employee.EmployeeId" class="btn btn-secondary btn-sm">Edit</a>
                                 </td>
                             </tr>

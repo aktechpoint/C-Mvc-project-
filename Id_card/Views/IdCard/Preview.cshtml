@@ -1,0 +1,133 @@
+
+@model Id_card.Models.Employees
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var qr = ViewBag.QR as string ?? "";
+}
+<div class="container py-4">
+    <h4 class="mb-3">ID Card Preview</h4>
+
+    <div class="aadhaar-card mx-auto">
+        <div class="top-band">
+            <span class="band saffron"></span>
+            <span class="band white"></span>
+            <span class="band green"></span>
+        </div>
+        <div class="card-body">
+            <div class="card-left">
+                <div class="emblem-wrap">
+                    <div class="emblem-circle">
+                        <span class="emblem-dot"></span>
+                    </div>
+                    <div class="org-name">iCard System</div>
+                    <div class="org-sub">Government Authorized Identity</div>
+                </div>
+                <img src='@(!string.IsNullOrEmpty(Model.Image) ? Model.Image : "/favicon.ico")' class='profile-photo' alt='Employee Photo' />
+                <div class="qr-wrap">
+                    <img src='@qr' class='qr-code' alt='QR Code' />
+                    <div class="qr-caption">Scan for verification</div>
+                </div>
+            </div>
+            <div class="card-right">
+                <div class="field-row">
+                    <span class="key">Employee ID</span>
+                    <span class="val">@Model.EmployeeId</span>
+                </div>
+                <div class="field-row">
+                    <span class="key">Name</span>
+                    <span class="val">@Model.Name</span>
+                </div>
+                <div class="field-row">
+                    <span class="key">Department</span>
+                    <span class="val">@Model.Department</span>
+                </div>
+                <div class="field-row">
+                    <span class="key">Designation</span>
+                    <span class="val">@Model.Designation</span>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(Model.BloodGroup)) {
+                    <div class="field-row">
+                        <span class="key">Blood Group</span>
+                        <span class="val">@Model.BloodGroup</span>
+                    </div>
+                }
+                <div class="field-row">
+                    <span class="key">Mobile</span>
+                    <span class="val">@Model.MobileNo</span>
+                </div>
+                <div class="field-row">
+                    <span class="key">Email</span>
+                    <span class="val">@Model.Email</span>
+                </div>
+                <div class="field-row address">
+                    <span class="key">Address</span>
+                    <span class="val">
+                        @if (Model.Address != null) {
+                            @(((Model.Address.HouseNo + " " + Model.Address.Street + ", " + Model.Address.City + ", " + Model.Address.State + ", " + Model.Address.Country + " " + Model.Address.Pincode).Replace("  ", " ").Trim()))
+                        }
+                    </span>
+                </div>
+                <div class="meta">
+                    <span>Issued: @(Model.IDCardIssueDate?.ToString("dd MMM yyyy") ?? DateTime.Now.ToString("dd MMM yyyy"))</span>
+                    <span>Valid Till: @(Model.ValidTill?.ToString("dd MMM yyyy") ?? "N/A")</span>
+                </div>
+            </div>
+            
+        </div>
+        <div class="bottom-bar">
+            <div class="bar-text">Toll-free: 1800-000-000 | www.icard.example</div>
+        </div>
+    </div>
+
+    <div class="mt-4 d-flex gap-2">
+        <a asp-controller="IdCard" asp-action="Pdf" asp-route-id="@Model.EmployeeId" class="btn btn-primary">
+            <i class="fas fa-file-pdf"></i> Download PDF
+        </a>
+        <form asp-controller="IdCard" asp-action="Email" asp-route-id="@Model.EmployeeId" method="post">
+            <button type="submit" class="btn btn-success"><i class="fas fa-paper-plane"></i> Send Email</button>
+        </form>
+        <a asp-controller="Employees" asp-action="Index" class="btn btn-secondary">Back</a>
+    </div>
+</div>
+
+<style>
+    .aadhaar-card {
+        width: 540px;
+        border-radius: 12px;
+        background: #ffffff;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+        border: 1px solid #e7e7e7;
+        overflow: hidden;
+    }
+    .top-band { display:flex; height: 6px; }
+    .band { flex:1; }
+    .band.saffron { background:#ff9933; }
+    .band.white { background:#ffffff; }
+    .band.green { background:#138808; }
+
+    .card-body { display:flex; position:relative; padding:16px; }
+    .card-left { width: 160px; padding: 8px 12px; border-right: 1px dashed #d8d8d8; display:flex; flex-direction:column; align-items:center; }
+    .emblem-wrap { text-align:center; margin-bottom: 10px; }
+    .emblem-circle { width:36px; height:36px; border-radius:50%; background:#222; margin:0 auto; position:relative; }
+    .emblem-dot { position:absolute; width:8px; height:8px; border-radius:50%; background:#fff; top:50%; left:50%; transform: translate(-50%,-50%); }
+    .org-name { font-weight:700; font-size:14px; margin-top:8px; color:#333; letter-spacing:.3px; }
+    .org-sub { font-size:11px; color:#777; }
+    .profile-photo { width:112px; height:112px; border-radius:6px; object-fit:cover; border: 2px solid #f0f0f0; }
+
+    .card-right { flex:1; padding: 4px 16px; }
+    .field-row { display:flex; align-items:center; justify-content:space-between; padding:6px 0; border-bottom:1px dashed #eee; }
+    .field-row:last-child { border-bottom:none; }
+    .key { color:#6b7280; font-size:12px; text-transform:uppercase; letter-spacing:.5px; }
+    .val { color:#111827; font-size:14px; font-weight:600; }
+    .address .val { display:block; text-align:right; }
+    .meta { display:flex; gap:16px; margin-top:10px; color:#555; font-size:12px; }
+
+    .qr-wrap { right:12px; bottom:12px; text-align:center; }
+    .qr-code { width:94px; height:94px; border:1px solid #eee; padding:6px; background:#fff; border-radius:8px; }
+    .qr-caption { font-size:10px; color:#666; margin-top:4px; }
+
+    .bottom-bar { background:#f9fafb; border-top:1px solid #eee; padding:6px 12px; text-align:center; }
+    .bar-text { font-size:12px; color:#6b7280; letter-spacing:.2px; }
+</style>
+
+

@@ -20,7 +20,15 @@ namespace Id_card.Controllers
         }
 
         // GET: Login
-        public IActionResult Login() => View();
+        public IActionResult Login()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId.HasValue)
+            {
+                return RedirectToAction("Index", "Dashboard");
+            }
+            return View();
+        }
 
         [HttpPost]
         public async Task<IActionResult> Login(string email, string password)
@@ -172,11 +180,15 @@ namespace Id_card.Controllers
             _context.Update(user);
             await _context.SaveChangesAsync();
 
+            // Auto sign-in and redirect to EditProfile
+            HttpContext.Session.SetInt32("UserId", user.UserId);
+            HttpContext.Session.SetString("UserRole", user.Role ?? "User");
+
             HttpContext.Session.Remove("OTP");
             HttpContext.Session.Remove("PendingEmail");
 
             TempData["Message"] = "User registration successful.";
-            return RedirectToAction("Login");
+            return RedirectToAction("EditProfile");
         }
 
         // GET: Forgot Password

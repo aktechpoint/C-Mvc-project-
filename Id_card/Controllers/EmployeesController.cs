@@ -3,16 +3,6 @@ using Id_card.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ClosedXML.Excel;
-using QRCoder;
-using System.Drawing;
-using System.Drawing.Imaging;
-using iText.Kernel.Pdf;
-using iText.Kernel.Font;
-using iText.IO.Font.Constants;
-using iText.IO.Image;
-using iText.Layout;
-using iText.Layout.Element;
-using iText.Layout.Properties;
 
 namespace Id_card.Controllers
 {
@@ -20,11 +10,13 @@ namespace Id_card.Controllers
     {
         private readonly ICardDbContext _context;
         private readonly EmailService _emailService;
+        private readonly IdCardService _idCardService;
 
-        public EmployeesController(ICardDbContext context, EmailService emailService)
+        public EmployeesController(ICardDbContext context, EmailService emailService, IdCardService idCardService)
         {
             _context = context;
             _emailService = emailService;
+            _idCardService = idCardService;
         }
 
         // GET: Employees List with pagination and filters
@@ -212,10 +204,10 @@ namespace Id_card.Controllers
 
             // Generate QR Code
             var qrData = $"Employee ID: {employee.EmployeeId}\nName: {employee.Name}\nDepartment: {employee.Department}\nDesignation: {employee.Designation}\nEmail: {employee.Email}";
-            var qrCodeImage = GenerateQRCode(qrData);
+            var qrCodeImage = _idCardService.GenerateQRCode(qrData);
 
             // Generate ID Card PDF bytes
-            var pdfBytes = GenerateIdCardPdfBytes(employee, qrCodeImage);
+            var pdfBytes = _idCardService.BuildIdCardPdfBytes(employee, qrCodeImage);
 
             if (sendEmail && !string.IsNullOrEmpty(employee.Email))
             {
@@ -261,8 +253,8 @@ namespace Id_card.Controllers
                 try
                 {
                     var qrData = $"Employee ID: {employee.EmployeeId}\nName: {employee.Name}\nDepartment: {employee.Department}\nDesignation: {employee.Designation}\nEmail: {employee.Email}";
-                    var qrCodeImage = GenerateQRCode(qrData);
-                    var idCardHtml = GenerateIdCardHtml(employee, qrCodeImage);
+                    var qrCodeImage = _idCardService.GenerateQRCode(qrData);
+                    var idCardHtml = _idCardService.BuildIdCardHtml(employee, qrCodeImage);
 
                     if (sendEmails && !string.IsNullOrEmpty(employee.Email))
                     {
@@ -315,103 +307,280 @@ namespace Id_card.Controllers
 
         private string GenerateIdCardHtml(Employees employee, string qrCodeImage)
         {
+            //            return $@"
+            //<!DOCTYPE html>
+            //<html>
+            //<head>
+            //    <title>ID Card - {employee.Name}</title>
+            //    <style>
+            //        body {{ font-family: Arial, sans-serif; margin: 0; padding: 20px; }}
+            //        .id-card {{ 
+            //            width: 400px; height: 250px; border: 2px solid #333; 
+            //            border-radius: 10px; padding: 20px; margin: 20px auto;
+            //            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            //            color: white; position: relative; overflow: hidden;
+            //        }}
+            //        .header {{ text-align: center; margin-bottom: 20px; }}
+            //        .company-name {{ font-size: 18px; font-weight: bold; margin-bottom: 5px; }}
+            //        .card-title {{ font-size: 14px; opacity: 0.9; }}
+            //        .content {{ display: flex; justify-content: space-between; }}
+            //        .left {{ flex: 1; }}
+            //        .right {{ flex: 1; text-align: right; }}
+            //        .photo {{ width: 80px; height: 80px; border-radius: 50%; border: 3px solid white; }}
+            //        .qr-code {{ width: 60px; height: 60px; }}
+            //        .field {{ margin-bottom: 8px; font-size: 12px; }}
+            //        .label {{ font-weight: bold; }}
+            //        .footer {{ position: absolute; bottom: 10px; left: 20px; right: 20px; text-align: center; font-size: 10px; opacity: 0.8; }}
+            //    </style>
+            //</head>
+            //<body>
+            //    <div class='id-card'>
+            //        <div class='header'>
+            //            <div class='company-name'>iCard System</div>
+            //            <div class='card-title'>Employee Identity Card</div>
+            //        </div>
+            //        <div class='content'>
+            //            <div class='left'>
+            //                <div class='field'><span class='label'>ID:</span> {employee.EmployeeId}</div>
+            //                <div class='field'><span class='label'>Name:</span> {employee.Name}</div>
+            //                <div class='field'><span class='label'>Dept:</span> {employee.Department}</div>
+            //                <div class='field'><span class='label'>Designation:</span> {employee.Designation}</div>
+            //                <div class='field'><span class='label'>Mobile:</span> {employee.MobileNo}</div>
+            //                <div class='field'><span class='label'>Email:</span> {employee.Email}</div>
+            //                <div class='field'><span class='label'>Address:</span> {(employee.Address == null ? "" : ($"{employee.Address.HouseNo} {employee.Address.Street}, {employee.Address.City}, {employee.Address.State}, {employee.Address.Country} {employee.Address.Pincode}").Replace("  ", " ").Trim())}</div>
+            //            </div>
+            //            <div class='right'>
+            //                <img src='{(string.IsNullOrEmpty(employee.Image) ? "/favicon.ico" : employee.Image)}' class='photo' alt='Photo' />
+            //                <div style='margin-top: 10px;'>
+            //                    <img src='{qrCodeImage}' class='qr-code' alt='QR Code' />
+            //                </div>
+            //            </div>
+            //        </div>
+            //        <div class='footer'>
+            //            Valid Till: {employee.ValidTill?.ToString("MMM yyyy") ?? "N/A"} | Issued: {employee.IDCardIssueDate?.ToString("MMM yyyy") ?? DateTime.Now.ToString("MMM yyyy")}
+            //        </div>
+            //    </div>
+            //</body>
+            //</html>";
             return $@"
-<!DOCTYPE html>
-<html>
-<head>
-    <title>ID Card - {employee.Name}</title>
-    <style>
-        body {{ font-family: Arial, sans-serif; margin: 0; padding: 20px; }}
-        .id-card {{ 
-            width: 400px; height: 250px; border: 2px solid #333; 
-            border-radius: 10px; padding: 20px; margin: 20px auto;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white; position: relative; overflow: hidden;
-        }}
-        .header {{ text-align: center; margin-bottom: 20px; }}
-        .company-name {{ font-size: 18px; font-weight: bold; margin-bottom: 5px; }}
-        .card-title {{ font-size: 14px; opacity: 0.9; }}
-        .content {{ display: flex; justify-content: space-between; }}
-        .left {{ flex: 1; }}
-        .right {{ flex: 1; text-align: right; }}
-        .photo {{ width: 80px; height: 80px; border-radius: 50%; border: 3px solid white; }}
-        .qr-code {{ width: 60px; height: 60px; }}
-        .field {{ margin-bottom: 8px; font-size: 12px; }}
-        .label {{ font-weight: bold; }}
-        .footer {{ position: absolute; bottom: 10px; left: 20px; right: 20px; text-align: center; font-size: 10px; opacity: 0.8; }}
-    </style>
-</head>
-<body>
-    <div class='id-card'>
-        <div class='header'>
-            <div class='company-name'>iCard System</div>
-            <div class='card-title'>Employee Identity Card</div>
-        </div>
-        <div class='content'>
-            <div class='left'>
-                <div class='field'><span class='label'>ID:</span> {employee.EmployeeId}</div>
-                <div class='field'><span class='label'>Name:</span> {employee.Name}</div>
-                <div class='field'><span class='label'>Dept:</span> {employee.Department}</div>
-                <div class='field'><span class='label'>Designation:</span> {employee.Designation}</div>
-                <div class='field'><span class='label'>Mobile:</span> {employee.MobileNo}</div>
-                <div class='field'><span class='label'>Email:</span> {employee.Email}</div>
-                <div class='field'><span class='label'>Address:</span> {(employee.Address == null ? "" : ($"{employee.Address.HouseNo} {employee.Address.Street}, {employee.Address.City}, {employee.Address.State}, {employee.Address.Country} {employee.Address.Pincode}").Replace("  ", " ").Trim())}</div>
-            </div>
-            <div class='right'>
-                <img src='{(string.IsNullOrEmpty(employee.Image) ? "/favicon.ico" : employee.Image)}' class='photo' alt='Photo' />
-                <div style='margin-top: 10px;'>
-                    <img src='{qrCodeImage}' class='qr-code' alt='QR Code' />
-                </div>
-            </div>
-        </div>
-        <div class='footer'>
-            Valid Till: {employee.ValidTill?.ToString("MMM yyyy") ?? "N/A"} | Issued: {employee.IDCardIssueDate?.ToString("MMM yyyy") ?? DateTime.Now.ToString("MMM yyyy")}
-        </div>
-    </div>
-</body>
-</html>";
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset='utf-8'>
+                    <title>ID Card - {employee.Name}</title>
+                    <style>
+                        body {{
+                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                            margin: 0;
+                            padding: 40px;
+                            background: #f4f6f8;
+                        }}
+                        .aadhaar-card {{
+                            width: 540px;
+                            border-radius: 12px;
+                            background: #ffffff;
+                            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+                            border: 1px solid #e7e7e7;
+                            overflow: hidden;
+                            margin: 0 auto;
+                        }}
+                        .top-band {{ display:flex; height: 6px; }}
+                        .band {{ flex:1; }}
+                        .band.saffron {{ background:#ff9933; }}
+                        .band.white {{ background:#ffffff; }}
+                        .band.green {{ background:#138808; }}
+
+                        .card-body {{ display:flex; position:relative; padding:16px; }}
+                        .card-left {{
+                            width: 160px;
+                            padding: 8px 12px;
+                            border-right: 1px dashed #d8d8d8;
+                            display:flex;
+                            flex-direction:column;
+                            align-items:center;
+                        }}
+                        .emblem-wrap {{ text-align:center; margin-bottom: 10px; }}
+                        .emblem-circle {{
+                            width:36px;
+                            height:36px;
+                            border-radius:50%;
+                            background:#222;
+                            margin:0 auto;
+                            position:relative;
+                        }}
+                        .emblem-dot {{
+                            position:absolute;
+                            width:8px;
+                            height:8px;
+                            border-radius:50%;
+                            background:#fff;
+                            top:50%;
+                            left:50%;
+                            transform: translate(-50%,-50%);
+                        }}
+                        .org-name {{
+                            font-weight:700;
+                            font-size:14px;
+                            margin-top:8px;
+                            color:#333;
+                            letter-spacing:.3px;
+                        }}
+                        .org-sub {{
+                            font-size:11px;
+                            color:#777;
+                        }}
+                        .profile-photo {{
+                            width:112px;
+                            height:112px;
+                            border-radius:6px;
+                            object-fit:cover;
+                            border: 2px solid #f0f0f0;
+                        }}
+
+                        .card-right {{ flex:1; padding: 4px 16px; }}
+                        .field-row {{
+                            display:flex;
+                            align-items:center;
+                            justify-content:space-between;
+                            padding:6px 0;
+                            border-bottom:1px dashed #eee;
+                        }}
+                        .field-row:last-child {{ border-bottom:none; }}
+                        .key {{
+                            color:#6b7280;
+                            font-size:12px;
+                            text-transform:uppercase;
+                            letter-spacing:.5px;
+                        }}
+                        .val {{
+                            color:#111827;
+                            font-size:14px;
+                            font-weight:600;
+                        }}
+                        .address .val {{ display:block; text-align:right; }}
+                        .meta {{
+                            display:flex;
+                            gap:16px;
+                            margin-top:10px;
+                            color:#555;
+                            font-size:12px;
+                        }}
+
+                        .qr-wrap {{
+                            right:12px;
+                            bottom:12px;
+                            text-align:center;
+                            margin-top:12px;
+                        }}
+                        .qr-code {{
+                            width:94px;
+                            height:94px;
+                            border:1px solid #eee;
+                            padding:6px;
+                            background:#fff;
+                            border-radius:8px;
+                        }}
+                        .qr-caption {{
+                            font-size:10px;
+                            color:#666;
+                            margin-top:4px;
+                        }}
+
+                        .bottom-bar {{
+                            background:#f9fafb;
+                            border-top:1px solid #eee;
+                            padding:6px 12px;
+                            text-align:center;
+                        }}
+                        .bar-text {{
+                            font-size:12px;
+                            color:#6b7280;
+                            letter-spacing:.2px;
+                        }}
+                    </style>
+                </head>
+                <body>
+                    <div class='aadhaar-card'>
+                        <div class='top-band'>
+                            <span class='band saffron'></span>
+                            <span class='band white'></span>
+                            <span class='band green'></span>
+                        </div>
+
+                        <div class='card-body'>
+                            <div class='card-left'>
+                                <div class='emblem-wrap'>
+                                    <div class='emblem-circle'>
+                                        <span class='emblem-dot'></span>
+                                    </div>
+                                    <div class='org-name'>iCard System</div>
+                                    <div class='org-sub'>Government Authorized Identity</div>
+                                </div>
+
+                                <img src='{(string.IsNullOrEmpty(employee.Image) ? "/favicon.ico" : employee.Image)}' 
+                                     class='profile-photo' alt='Employee Photo' />
+
+                                <div class='qr-wrap'>
+                                    <img src='{qrCodeImage}' class='qr-code' alt='QR Code' />
+                                    <div class='qr-caption'>Scan for verification</div>
+                                </div>
+                            </div>
+
+                            <div class='card-right'>
+                                <div class='field-row'>
+                                    <span class='key'>Employee ID</span>
+                                    <span class='val'>{employee.EmployeeId}</span>
+                                </div>
+                                <div class='field-row'>
+                                    <span class='key'>Name</span>
+                                    <span class='val'>{employee.Name}</span>
+                                </div>
+                                <div class='field-row'>
+                                    <span class='key'>Department</span>
+                                    <span class='val'>{employee.Department}</span>
+                                </div>
+                                <div class='field-row'>
+                                    <span class='key'>Designation</span>
+                                    <span class='val'>{employee.Designation}</span>
+                                </div>
+                                {(string.IsNullOrWhiteSpace(employee.BloodGroup) ? "" :
+                                 $"<div class='field-row'><span class='key'>Blood Group</span><span class='val'>{employee.BloodGroup}</span></div>")}
+                                <div class='field-row'>
+                                    <span class='key'>Mobile</span>
+                                    <span class='val'>{employee.MobileNo}</span>
+                                </div>
+                                <div class='field-row'>
+                                    <span class='key'>Email</span>
+                                    <span class='val'>{employee.Email}</span>
+                                </div>
+                                <div class='field-row address'>
+                                    <span class='key'>Address</span>
+                                    <span class='val'>{(employee.Address == null ? "" :
+                                     ($"{employee.Address.HouseNo} {employee.Address.Street}, {employee.Address.City}, {employee.Address.State}, {employee.Address.Country} {employee.Address.Pincode}")
+                                     .Replace("  ", " ").Trim())}</span>
+                                </div>
+                                <div class='meta'>
+                                    <span>Issued: {(employee.IDCardIssueDate?.ToString("dd MMM yyyy") ?? DateTime.Now.ToString("dd MMM yyyy"))}</span>
+                                    <span>Valid Till: {(employee.ValidTill?.ToString("dd MMM yyyy") ?? "N/A")}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class='bottom-bar'>
+                            <div class='bar-text'>Toll-free: 1800-000-000 | www.icard.example</div>
+                        </div>
+                    </div>
+                </body>
+                </html>";
+
+
         }
 
         private byte[] GenerateIdCardPdfBytes(Employees employee, string qrCodeImage)
         {
-            using var ms = new MemoryStream();
-            using var writer = new PdfWriter(ms);
-            using var pdf = new PdfDocument(writer);
-            using var doc = new Document(pdf);
-
-            doc.Add(new Paragraph("iCard System")
-                .SetTextAlignment(TextAlignment.CENTER)
-                .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
-                .SetFontSize(16));
-            doc.Add(new Paragraph("Employee Identity Card").SetTextAlignment(TextAlignment.CENTER).SetFontSize(12));
-
-            var table = new Table(2).UseAllAvailableWidth();
-            var left = new Cell().SetPadding(8);
-
-            string addressLine = employee.Address == null ? "" : $"{employee.Address.HouseNo} {employee.Address.Street}, {employee.Address.City}, {employee.Address.State}, {employee.Address.Country} {employee.Address.Pincode}".Replace("  ", " ").Trim();
-            left.Add(new Paragraph($"ID: {employee.EmployeeId}").SetFontSize(10));
-            left.Add(new Paragraph($"Name: {employee.Name}").SetFontSize(10));
-            left.Add(new Paragraph($"Dept: {employee.Department}").SetFontSize(10));
-            left.Add(new Paragraph($"Designation: {employee.Designation}").SetFontSize(10));
-            left.Add(new Paragraph($"Mobile: {employee.MobileNo}").SetFontSize(10));
-            left.Add(new Paragraph($"Email: {employee.Email}").SetFontSize(10));
-            if (!string.IsNullOrWhiteSpace(addressLine))
-                left.Add(new Paragraph($"Address: {addressLine}").SetFontSize(10));
-
-            var right = new Cell().SetPadding(8);
-            right.Add(new Paragraph("QR Code").SetFontSize(10));
-
-            table.AddCell(left);
-            table.AddCell(right);
-            doc.Add(table);
-
-            doc.Add(new Paragraph($"Issued: {(employee.IDCardIssueDate?.ToString("dd MMM yyyy") ?? DateTime.Now.ToString("dd MMM yyyy"))}    Valid Till: {(employee.ValidTill?.ToString("dd MMM yyyy") ?? "N/A")}" )
-                .SetTextAlignment(TextAlignment.CENTER)
-                .SetFontSize(9)
-                .SetMarginTop(10));
-
-            doc.Close();
-            return ms.ToArray();
+            // Deprecated: logic moved to IdCardService; keeping method for compatibility if referenced elsewhere
+            var service = new Id_card.Services.IdCardService();
+            return service.BuildIdCardPdfBytes(employee, qrCodeImage);
         }
 
         // GET: Edit Employee

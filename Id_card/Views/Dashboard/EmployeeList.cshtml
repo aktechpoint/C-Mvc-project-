@@ -72,14 +72,15 @@
                                 </td>
                                 <td>
                                     <div class="btn-group" role="group">
-                                        <a asp-controller="Dashboard" asp-action="GenerateIdCardPdf" asp-route-id="@employee.EmployeeId" 
+                                        <a asp-controller="IdCard" asp-action="Pdf" asp-route-id="@employee.EmployeeId" 
                                            class="btn btn-primary btn-sm" target="_blank" title="Generate PDF">
                                             <i class="fas fa-file-pdf"></i>
                                         </a>
-                                        <a asp-controller="Dashboard" asp-action="SendIdCardEmail" asp-route-id="@employee.EmployeeId" 
-                                           class="btn btn-info btn-sm" title="Send Email">
+                                        <form asp-controller="IdCard" asp-action="Email" asp-route-id="@employee.EmployeeId" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-info btn-sm" title="Send Email">
                                             <i class="fas fa-envelope"></i>
-                                        </a>
+                                            </button>
+                                        </form>
                                         <button type="button" class="btn btn-success btn-sm" onclick="shareWhatsApp(@employee.EmployeeId)" title="Share on WhatsApp">
                                             <i class="fab fa-whatsapp"></i>
                                         </button>
@@ -101,8 +102,7 @@
     </div>
 </div>
 
-<!-- Font Awesome for icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+@* Font Awesome is already included in _Layout; duplicate include removed *@
 
 <script>
     function shareWhatsApp(employeeId) {
